@@ -20,12 +20,15 @@ module Spree
       end
 
       def where_query
-        min_price, max_price = price.split(',') if price
         where_query = {
           active: true,
-          price: min_price ? { gte: min_price, lte: max_price } : { not: nil },
+          price: { not: nil },
           currency: current_currency,
         }
+        if price
+          min_price, max_price = price.split(',')
+          where_query[:price] = { gte: min_price, lte: max_price } if max_price.to_i > 0 && min_price.to_i < max_price.to_i
+        end
         where_query[:option_value_ids] = option_value_ids if option_value_ids.count > 0
         where_query[:taxon_ids] = taxon.id if taxon
         add_search_filters(where_query)
