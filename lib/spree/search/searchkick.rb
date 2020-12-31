@@ -41,6 +41,16 @@ module Spree
       def sorted
         order_params = {}
         order_params[:conversions] = :desc if conversions
+        case sort_by
+        when 'newest-first'
+          order_params[:created_at] = :desc
+        when 'price-high-to-low'
+          order_params[:price] = :desc
+        when 'price-low-to-high'
+          order_params[:price] = :asc
+        else
+          order_params[:id] = :asc
+        end
         order_params
       end
 
