@@ -29,7 +29,9 @@ module Spree
           min_price, max_price = price.split(',')
           where_query[:price] = { gte: min_price, lte: max_price } if max_price.to_i > 0 && min_price.to_i < max_price.to_i
         end
-        where_query[:option_value_ids] = option_value_ids if option_value_ids.count > 0
+        Spree::OptionType.pluck(:name).each do |option_type|
+          where_query[option_type] = Spree::OptionValue.where(id: params[option_type].split(',')).pluck(:name) if params[option_type].present? && params[option_type].split(',').count > 0
+        end
         where_query[:taxon_ids] = taxon.id if taxon
         add_search_filters(where_query)
       end
@@ -85,6 +87,7 @@ module Spree
       def prepare(params)
         super
         @properties[:conversions] = params[:conversions]
+        @properties[:params] = params
       end
     end
   end
